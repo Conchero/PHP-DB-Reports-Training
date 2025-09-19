@@ -90,6 +90,10 @@ COPY ./src/App /var/www/html
 COPY ./apache/apache2.conf /etc/apache2/apache2.conf
 COPY ./apache/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
+
+# RUN apt-get update && apt-get install -y cron 
+# RUN apt-get update && apt-get install -y nano 
+
 # Switch to a non-privileged user (defined in the base image) that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 USER www-data

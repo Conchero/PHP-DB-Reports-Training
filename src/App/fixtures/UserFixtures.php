@@ -1,32 +1,43 @@
 <?php
 
-
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Entities/User.php";
 
 class UserFixtures
 {
 
 
-    public function ReadCSV(string $_path)
+    private string $pathToFixtureFile = __DIR__ . "/fixtures_files/fake_users_50.csv";
+
+    public function ReadCSV() : array
     {
-        $row = 1;
+        $_path = $this->pathToFixtureFile;
+        $parameters = array();
+        $row = 0;
+        $user = array();
         if (($file = fopen($_path, 'r')) !== FALSE) {
             while (($data = fgetcsv($file, 0, ',', '"', '\\')) !== FALSE) {
+
+                $userParameter = array();
                 $num = count($data);
-                echo "<p> $num fields in line $row: <br /></p>\n";
-                for ($c = 0; $c < $num; $c++) {
-                    echo $data[$c] . "<br />\n";
+                for ($c = 1; $c < $num; $c++) {
+                    if ($row !== 0) {
+                        if ($c - 1 < count($parameters)) {
+                            $userParameter[$parameters[$c - 1]] = $data[$c];
+                        }
+                    } else {
+                        array_push($parameters, $data[$c]);
+                    }
                 }
+                if ($row !== 0) {
+                    $format = 'Y-m-d H:i:s';
+                     array_push($user, new User($userParameter["email"], $userParameter["password"], DateTimeImmutable::createFromFormat($format,$userParameter["created_at"]), $userParameter["first_name"], $userParameter["last_name"]));
+                }
+                $row++;
             }
             fclose($file);
-        }
+
+             //print_r($user);
+            }
+            return $user;
     }
 }
-
-
-$pathToFixtureFile = __DIR__ . "/fixtures_files/fake_users_50.csv";
-
-
-$fixture = new UserFixtures();
-$fixture->ReadCSV($pathToFixtureFile);
-
-exit();

@@ -1,5 +1,6 @@
 <header>
     <nav>
-        <a href="/">Header</a>
+        <a href="/">Home</a>
+        <a href="/fixture">Make Fixtures</a>
     </nav>
 </header>

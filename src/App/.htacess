@@ -1,0 +1,16 @@
+# Activation du mode Rewrite
+RewriteEngine On
+
+DocumentRoot /var/www/html
+
+# Réécriture des URLs
+RewriteBase /
+
+# Si le fichier ou dossier demandé n'existe pas, rediriger vers index.php (404)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ index.php [L,QSA]
+
+# ^(.+)$ est un regex qui correspond à n'importe quel chemin
+# L,QSA : L : Last, QSA : Query String Append
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-rewrite-rules-on-apache-2
