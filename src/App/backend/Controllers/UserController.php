@@ -44,12 +44,12 @@ class UserController extends BaseController
     }
 
 
-    function GetAllUsers() 
+    function GetAllUsers() : int 
     {
          $sql = "SELECT COUNT(id) as nb_users FROM users";
         $results = $this->dbController->GetDBH()->prepare($sql);
         $results->execute();
         
-        echo "nb users " . $results->fetchAll()[0]["nb_users"];
+        return $results->fetchAll()[0]["nb_users"];
     }
 }

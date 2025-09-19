@@ -91,8 +91,14 @@ COPY ./apache/apache2.conf /etc/apache2/apache2.conf
 COPY ./apache/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
 
-# RUN apt-get update && apt-get install -y cron 
-# RUN apt-get update && apt-get install -y nano 
+RUN apt-get update && apt-get install -y cron nano 
+
+COPY ./cronjob/testcron.txt ./cronjob/
+COPY ./cronjob/cron.d/cron.allow /etc/cron.d/
+
+RUN crontab -u root ./cronjob/testcron.txt
+
+RUN mkdir /var/log/cronjobLogs/ &&  touch /var/log/cronjobLogs/logs.txt
 
 # Switch to a non-privileged user (defined in the base image) that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/

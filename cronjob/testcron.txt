@@ -1,0 +1,1 @@
+* * * * * /usr/local/bin/php /var/www/html/backend/Reports/DailyReport.php > /var/log/cronjobLogs/logs.txt
