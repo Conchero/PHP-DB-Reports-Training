@@ -7,14 +7,18 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/DatabaseControlle
 abstract class BaseController
 {
     protected ?DatabaseController $dbController;
+    protected ?PDO $dbh;
 
     function __construct(?DatabaseController $_dbContoller = null)
     {
-        if ($_dbContoller != null){
+        if ($_dbContoller != null) {
             $this->dbController = $_dbContoller;
-        }
-        else{
+        } else {
             $this->dbController = new DatabaseController();
+        }
+
+        if (!is_null($this->dbController->GetDBH())) {
+            $this->dbh = $this->dbController->GetDBH();
         }
     }
 
@@ -22,5 +26,6 @@ abstract class BaseController
     function __destruct()
     {
         $this->dbController = null;
+        $this->dbh = null;
     }
 }

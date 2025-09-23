@@ -1,6 +1,7 @@
 <?php
 
-$_SERVER["DOCUMENT_ROOT"] = "/var/www/html";
+isset($_SERVER["DOCUMENT_ROOT"]) ? $_SERVER["DOCUMENT_ROOT"] = "/var/www/html" : "server root is set"; 
+
 
 require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/UserController.php";
 

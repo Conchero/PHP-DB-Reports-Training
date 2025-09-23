@@ -1,14 +1,30 @@
 <?php
 
+isset($_SERVER["DOCUMENT_ROOT"]) ? $_SERVER["DOCUMENT_ROOT"] = "/var/www/html" : "server root is set";
+
 require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Entities/User.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/DatabaseController.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/UserController.php";
 
 class UserFixtures
 {
+    private ?string $pathToFixtureFile ;
+    private ?UserController $userController;
+
+    function __construct()
+    {
+        $this->pathToFixtureFile = __DIR__ . "/fixtures_files/fake_users_50.csv";
+        $this->userController = new UserController();
+    }
+    
+    function __destruct()
+    {
+        $this->pathToFixtureFile = null;
+        $this->userController = null;
+    }
 
 
-    private string $pathToFixtureFile = __DIR__ . "/fixtures_files/fake_users_50.csv";
-
-    public function ReadCSV() : array
+    public function FillDBFromCSV()
     {
         $_path = $this->pathToFixtureFile;
         $parameters = array();
@@ -30,14 +46,20 @@ class UserFixtures
                 }
                 if ($row !== 0) {
                     $format = 'Y-m-d H:i:s';
-                     array_push($user, new User($userParameter["email"], $userParameter["password"], DateTimeImmutable::createFromFormat($format,$userParameter["created_at"]), $userParameter["first_name"], $userParameter["last_name"]));
+                    array_push($user, new User($userParameter["email"], $userParameter["password"], DateTimeImmutable::createFromFormat($format, $userParameter["created_at"]), $userParameter["first_name"], $userParameter["last_name"]));
                 }
                 $row++;
             }
             fclose($file);
 
-             //print_r($user);
+            if (count($user) > 0) {
+                $this->userController->PushNewUsersInDatabase($user);
             }
-            return $user;
+        }
+    }
+
+
+    public function DeleteFixturesFromDB() {
+        $dbController = new DatabaseController();
     }
 }
