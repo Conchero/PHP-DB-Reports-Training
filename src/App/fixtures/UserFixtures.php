@@ -8,7 +8,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/UserController.ph
 
 class UserFixtures
 {
-    private ?string $pathToFixtureFile ;
+    private ?string $pathToFixtureFile;
     private ?UserController $userController;
 
     function __construct()
@@ -16,7 +16,7 @@ class UserFixtures
         $this->pathToFixtureFile = __DIR__ . "/fixtures_files/fake_users_50.csv";
         $this->userController = new UserController();
     }
-    
+
     function __destruct()
     {
         $this->pathToFixtureFile = null;
@@ -26,11 +26,10 @@ class UserFixtures
 
     public function FillDBFromCSV()
     {
-        $_path = $this->pathToFixtureFile;
         $parameters = array();
         $row = 0;
         $user = array();
-        if (($file = fopen($_path, 'r')) !== FALSE) {
+        if (($file = fopen($this->pathToFixtureFile, 'r')) !== FALSE) {
             while (($data = fgetcsv($file, 0, ',', '"', '\\')) !== FALSE) {
 
                 $userParameter = array();
@@ -59,7 +58,30 @@ class UserFixtures
     }
 
 
-    public function DeleteFixturesFromDB() {
-        $dbController = new DatabaseController();
+    public function DeleteFixturesFromDB()
+    {
+        $row = 0;
+        $parameters = array();
+        $userEmail = array();
+        if (($file = fopen($this->pathToFixtureFile, 'r')) !== FALSE) {
+            while (($data = fgetcsv($file, 0, ",", '"', "\\")) !== FALSE) {
+
+                for ($i = 0; $i < count($data); $i++) {
+                    if ($row !== 0) {
+                        if ($parameters[$i] == "email") {
+                            array_push($userEmail, $data[$i]);
+                        }
+                    } else {
+                        array_push($parameters, $data[$i]);
+                    }
+                }
+                $row++;
+            }
+            fclose($file);
+
+            if (count($userEmail) > 0){
+                $this->userController->DeleteMultipleUsers($userEmail);
+            }
+        }
     }
 }
