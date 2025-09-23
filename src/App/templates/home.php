@@ -1,15 +1,6 @@
 <?php 
 
 
-// require_once $_SERVER["DOCUMENT_ROOT"] . "/fixtures/UserFixtures.php";
- require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/UserController.php";
-
-
-// $userFixture = new UserFixtures();
- $userController = new UserController();
-
-
- $userController->GetAllUsers();
 ?>
 
 

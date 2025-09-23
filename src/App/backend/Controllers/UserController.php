@@ -44,12 +44,12 @@ class UserController extends BaseController
     }
 
 
-    function GetAllUsers() : int 
+    function GetUsersCreatedByMonth() : array 
     {
-         $sql = "SELECT COUNT(id) as nb_users FROM users";
+         $sql = "SELECT first_name, last_name, email, created_at FROM users ORDER BY created_at, first_name ASC";
         $results = $this->dbController->GetDBH()->prepare($sql);
         $results->execute();
         
-        return $results->fetchAll()[0]["nb_users"];
+        return $results->fetchAll();
     }
 }
