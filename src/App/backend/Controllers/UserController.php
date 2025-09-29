@@ -63,9 +63,9 @@ class UserController extends BaseController
     }
 
 
-    function GetUsersCreatedByMonth(): array
+    function GetUsersByCreatedAt(): array
     {
-        $sql = "SELECT first_name, last_name, email, created_at FROM users ORDER BY created_at, first_name ASC";
+        $sql = "SELECT first_name, last_name, email, created_at FROM users ORDER BY created_at DESC, first_name ASC";
         $results = $this->dbh->prepare($sql);
         $results->execute();
 

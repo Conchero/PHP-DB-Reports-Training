@@ -1,3 +1,7 @@
-
+POSTGRES_USER=postgres
+POSTGRES_HOST=db
+POSTGRES_NAME=training
+POSTGRES_PASSWORD=dbtraining
+POSTGRES_PORT=5432
 
 * * * * * /usr/local/bin/php /var/www/html/backend/Reports/DailyReport.php > /var/log/cronjobLogs/logs.txt
