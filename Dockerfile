@@ -81,6 +81,9 @@ RUN apt-get install -y libpq-dev \
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY ./docker-php-ext-pdo_pgsql.ini "$PHP_INI_DIR/conf.d/"
+COPY ./docker-php-ext-openssl.ini "$PHP_INI_DIR/conf.d/"
+
+RUN apt-get install -y zlib1g-dev libzip-dev 
 
 # Copy the app dependencies from the previous install stage.
 COPY --from=deps app/vendor/ /var/www/html/vendor

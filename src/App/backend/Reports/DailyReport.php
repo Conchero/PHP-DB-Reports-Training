@@ -34,3 +34,6 @@ for ($i = 0; $i < count($userPerMonth); $i++) {
 
     $lastDateInfo = $currentDateInfo;
 }
+
+
+include $_SERVER["DOCUMENT_ROOT"] . "/backend/Services/mail.php";
