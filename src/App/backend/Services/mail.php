@@ -7,33 +7,41 @@ use PHPMailer\PHPMailer\Exception;
 require "{$_SERVER["DOCUMENT_ROOT"]}/vendor/autoload.php";
 
 
+class MailService
+{
 
-$mail = new PHPMailer(true);
+    public static function CreateAndSendMail(string $title, string $body)
+    {
+        try {
+            $mail = new PHPMailer(true);
 
-try {
-    // SMTP config
-    $mail->isSMTP();
-    $mail->Host = "sandbox.smtp.mailtrap.io";
-    $mail->SMTPAuth = true;
-    $mail->Username = "c872fc36f12158";    $mail->Password = "e7264d2ecabc67";    $mail->SMTPSecure = 'tls';
-    $mail->Port = 2525;
+            // SMTP config
+            $mail->isSMTP();
+            $mail->Host = "sandbox.smtp.mailtrap.io";
+            $mail->SMTPAuth = true;
+            $mail->Username = "c872fc36f12158";
+            $mail->Password = "e7264d2ecabc67";
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 2525;
 
-    // Sender and recipient settings
-    $mail->setFrom('info@mailtrap.io', 'Mailtrap');
-    $mail->addReplyTo('info@mailtrap.io', 'Mailtrap');
-    $mail->addAddress('recipient1@mailtrap.io', 'Tim'); // Replace with recipient's email and name
+            // Sender and recipient settings
+            $mail->setFrom('info@mailtrap.io', 'Mailtrap');
+            $mail->addReplyTo('info@mailtrap.io', 'Mailtrap');
+            $mail->addAddress('recipient1@mailtrap.io', 'Tim'); // Replace with recipient's email and name
 
-    // Setting the email content
-    $mail->isHTML(false); // Set email format to plain text
-    $mail->Subject = 'Test Email via Mailtrap SMTP using PHPMailer';
-    $mail->Body = "This is a test email I'm sending using SMTP mail server with PHPMailer in plain text.";
+            // Setting the email content
+            $mail->isHTML(false); // Set email format to plain text
+            $mail->Subject = "{$title}";
+            $mail->Body = "{$body}";
 
-    if ($mail->send()) {
-        echo 'Message has been sent';
-    } else {
-        echo 'Message could not be sent.';
-        echo 'Mailer Error: ' . $mail->ErrorInfo;
+            if ($mail->send()) {
+                echo 'Message has been sent';
+            } else {
+                echo 'Message could not be sent.';
+                echo 'Mailer Error: ' . $mail->ErrorInfo;
+            }
+        } catch (Exception $e) {
+            echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
+        }
     }
-} catch (Exception $e) {
-    echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
 }

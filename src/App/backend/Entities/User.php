@@ -1,6 +1,6 @@
 <?php
 
-require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/Entities/BaseEntity.php';
+require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/entities/BaseEntity.php';
 
 class User extends BaseEntity
 {

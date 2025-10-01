@@ -2,9 +2,9 @@
 
 isset($_SERVER["DOCUMENT_ROOT"]) ? $_SERVER["DOCUMENT_ROOT"] = "/var/www/html" : "server root is set";
 
-require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Entities/User.php";
-require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/DatabaseController.php";
-require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/UserController.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/entities/User.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/controllers/DatabaseController.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/controllers/UserController.php";
 
 class UserFixtures
 {

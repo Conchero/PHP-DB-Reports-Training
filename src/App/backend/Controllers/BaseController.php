@@ -1,7 +1,7 @@
 <?php
 
 require_once $_SERVER["DOCUMENT_ROOT"] . '/vendor/autoload.php';
-require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/Controllers/DatabaseController.php";
+require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/controllers/DatabaseController.php";
 
 
 abstract class BaseController

@@ -88,7 +88,7 @@ RUN apt-get install -y zlib1g-dev libzip-dev
 # Copy the app dependencies from the previous install stage.
 COPY --from=deps app/vendor/ /var/www/html/vendor
 # Copy the app files from the app directory.
-COPY ./src/App /var/www/html
+COPY ./src/app /var/www/html
 
 COPY ./apache/apache2.conf /etc/apache2/apache2.conf
 COPY ./apache/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default.conf

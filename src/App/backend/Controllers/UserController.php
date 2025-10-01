@@ -1,7 +1,7 @@
 <?php
 
-require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/Controllers/BaseController.php';
-require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/Entities/User.php';
+require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/controllers/BaseController.php';
+require_once $_SERVER["DOCUMENT_ROOT"] . '/backend/entities/User.php';
 
 class UserController extends BaseController
 {
