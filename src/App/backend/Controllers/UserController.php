@@ -75,6 +75,53 @@ class UserController extends BaseController
     {
         $dateTimeFormat = "Y-m-d";
 
+        if (!is_null($targetedDate) && count(date_parse($targetedDate->format($dateTimeFormat))["warnings"]) > 0) {
+            echo "Targeted Date not valid \n";
+            return null;
+        }
+        $dateTimeZone = new DateTimeZone('Europe/Paris');
+
+        $dateTime = is_null($targetedDate) ? 'now' : $targetedDate->format($dateTimeFormat);
+
+
+        $date = new DateTime($dateTime, $dateTimeZone);
+        $currentDate = $date->format($dateTimeFormat);
+
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_at, 'YYYY-MM-DD') = '{$currentDate}' ORDER BY created_at DESC, first_name ASC";
+        $results = $this->dbh->prepare($sql);
+        $results->execute();
+
+        return $results->fetchAll();
+    }
+
+    function GetMonthlyNewUsers(?DateTimeImmutable $targetedDate = null): ?array
+    {
+        $dateTimeFormat = "Y-m";
+
+        if (!is_null($targetedDate) && count(date_parse($targetedDate->format($dateTimeFormat))["warnings"]) > 0) {
+            echo "Targeted Date not valid \n";
+            return null;
+        }
+        $dateTimeZone = new DateTimeZone('Europe/Paris');
+
+        $dateTime = is_null($targetedDate) ? 'now' : $targetedDate->format($dateTimeFormat);
+
+
+        $date = new DateTime($dateTime, $dateTimeZone);
+        $currentDate = $date->format($dateTimeFormat);
+
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_at, 'YYYY-MM') = '{$currentDate}' ORDER BY created_at DESC, first_name ASC";
+        $results = $this->dbh->prepare($sql);
+        $results->execute();
+
+        return $results->fetchAll();
+    }
+
+    function GetYearlyNewUsers(?DateTimeImmutable $targetedDate = null): ?array
+    {
+
+        $dateTimeFormat = "Y";
+
         if (!is_null($targetedDate) && count(date_parse($targetedDate->format($dateTimeFormat))["warnings"]) > 0){
             echo "Targeted Date not valid \n";
             return null;
@@ -87,31 +134,7 @@ class UserController extends BaseController
         $date = new DateTime( $dateTime, $dateTimeZone);
         $currentDate = $date->format($dateTimeFormat);
 
-        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_at, 'YYYY-MM-DD') = '{$currentDate}' ORDER BY created_at DESC, first_name ASC";
-        $results = $this->dbh->prepare($sql);
-        $results->execute();
-
-        return $results->fetchAll();
-    }
-
-    function GetMonthlyNewUsers(): array
-    {
-        $date = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $currentDate = $date->format("Y-m");
-
-        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_year, 'YYYY-MM') = {$currentDate} ORDER BY created_at DESC, first_name ASC";
-        $results = $this->dbh->prepare($sql);
-        $results->execute();
-
-        return $results->fetchAll();
-    }
-
-    function GetYearlyNewUsers(): array
-    {
-        $date = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $currentDate = $date->format("Y");
-
-        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_year, 'YYYY') = {$currentDate} ORDER BY created_at DESC, first_name ASC";
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_at, 'YYYY') = '{$currentDate}' ORDER BY created_at DESC, first_name ASC";
         $results = $this->dbh->prepare($sql);
         $results->execute();
 
