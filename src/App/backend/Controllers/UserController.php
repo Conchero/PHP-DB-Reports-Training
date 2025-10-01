@@ -19,11 +19,10 @@ class UserController extends BaseController
         if (!is_null($_email)) {
             $sql = "SELECT email FROM users WHERE email = :email ";
             $result = $this->dbh->prepare($sql);
-            $result->bindParam(":email",$_email, PDO::PARAM_STR);
+            $result->bindParam(":email", $_email, PDO::PARAM_STR);
             $result->execute();
 
             return $result->rowCount() >= 1;
-
         }
         return false;
     }
@@ -51,7 +50,7 @@ class UserController extends BaseController
                     $results->bindParam(":last_name_{$i}", $_userArray[$i]->GetLastName(), PDO::PARAM_STR);
                     $results->bindParam(":email_{$i}", $_userArray[$i]->GetEmail(), PDO::PARAM_STR);
                     $hashedPassword = password_hash($_userArray[$i]->GetPassword(), PASSWORD_DEFAULT);
-                    $results->bindParam(":password_{$i}",$hashedPassword , PDO::PARAM_STR);
+                    $results->bindParam(":password_{$i}", $hashedPassword, PDO::PARAM_STR);
                     $results->bindParam(":created_at_{$i}", $_userArray[$i]->GetCreatedAt()->format('Y-m-d H:i:s'));
                     echo "adding {$_userArray[$i]->GetEmail()} \n";
                 }
@@ -63,7 +62,7 @@ class UserController extends BaseController
     }
 
 
-    function GetUsersByCreatedAt(): array
+    function GetUsersByGlobalCreatedAt(): array
     {
         $sql = "SELECT first_name, last_name, email, created_at FROM users ORDER BY created_at DESC, first_name ASC";
         $results = $this->dbh->prepare($sql);
@@ -72,7 +71,52 @@ class UserController extends BaseController
         return $results->fetchAll();
     }
 
+    function GetDailyNewUsers(?DateTimeImmutable $targetedDate = null): ?array
+    {
+        $dateTimeFormat = "Y-m-d";
 
+        if (!is_null($targetedDate) && count(date_parse($targetedDate->format($dateTimeFormat))["warnings"]) > 0){
+            echo "Targeted Date not valid \n";
+            return null;
+        }
+        $dateTimeZone = new DateTimeZone('Europe/Paris');
+
+        $dateTime = is_null($targetedDate) ? 'now' : $targetedDate->format($dateTimeFormat);
+        
+
+        $date = new DateTime( $dateTime, $dateTimeZone);
+        $currentDate = $date->format($dateTimeFormat);
+
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_at, 'YYYY-MM-DD') = '{$currentDate}' ORDER BY created_at DESC, first_name ASC";
+        $results = $this->dbh->prepare($sql);
+        $results->execute();
+
+        return $results->fetchAll();
+    }
+
+    function GetMonthlyNewUsers(): array
+    {
+        $date = new DateTime('now', new DateTimeZone('Europe/Paris'));
+        $currentDate = $date->format("Y-m");
+
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_year, 'YYYY-MM') = {$currentDate} ORDER BY created_at DESC, first_name ASC";
+        $results = $this->dbh->prepare($sql);
+        $results->execute();
+
+        return $results->fetchAll();
+    }
+
+    function GetYearlyNewUsers(): array
+    {
+        $date = new DateTime('now', new DateTimeZone('Europe/Paris'));
+        $currentDate = $date->format("Y");
+
+        $sql = "SELECT first_name, last_name, email, created_at FROM users WHERE to_char(created_year, 'YYYY') = {$currentDate} ORDER BY created_at DESC, first_name ASC";
+        $results = $this->dbh->prepare($sql);
+        $results->execute();
+
+        return $results->fetchAll();
+    }
 
     function DeleteMultipleUsers(array $_userEmail)
     {
@@ -89,16 +133,14 @@ class UserController extends BaseController
                 echo "Can't delete user {$_userEmail[$i]} it does not exist \n";
             }
         }
-        if ($whereForSQL != '')
-        {
+        if ($whereForSQL != '') {
             $sql = "DELETE FROM users WHERE {$whereForSQL}";
             $results = $this->dbh->prepare($sql);
             for ($i = 0; $i < count($_userEmail); $i++) {
-                $results->bindParam(":email_{$i}",$_userEmail[$i], PDO::PARAM_STR);
+                $results->bindParam(":email_{$i}", $_userEmail[$i], PDO::PARAM_STR);
                 echo "deleting {$_userEmail[$i]} \n";
             }
             $results->execute();
         }
-
     }
 }
