@@ -5,9 +5,7 @@ isset($_SERVER["DOCUMENT_ROOT"]) ? $_SERVER["DOCUMENT_ROOT"] = "/var/www/html" :
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-echo "Avant require UserController\n";
 require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/controllers/UserController.php";
-echo "Après require UserController\n";
 require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/services/Mail.php";
 
 
@@ -102,13 +100,60 @@ function GlobalReport()
     echo "Debut de global report \n";
 
     try {
-        echo "Avant new UserController\n";
         $userController = new UserController();
         $userArray = $userController->GetUsersByCreatedAt();
-        $nbUser = count($userArray);
 
-        echo "Après new UserController\n";
-        echo "users got {$userArray[0]["created_at"]} \n";
+        //current date meant to be changed in first for iteration 
+        $currentDate =  DateTimeImmutable::createFromFormat("Y-m-d", "0000-00-00");
+
+        //Used to create to the folder and subfolder 
+        $reportYearFolderPath = null;
+        $reportMonthSubFolderPath = null;
+
+        $missingReportPathArray = array();
+        $missingReportUsersInfoArray = array();
+
+        for ($i = 0; $i < count($userArray); $i++) {
+            //Get the user full date time created at
+            $createdAt = DateTimeImmutable::createFromFormat("Y-m-d", $userArray[$i]["created_at"]);
+
+            array_push($missingReportUsersInfoArray, [$userArray[$i]["first_name"], $userArray[$i]["last_name"], $userArray[$i]["email"], $userArray[$i]["created_at"]]);
+
+            if ($createdAt->format("Y-m-d") !== $currentDate->format("Y-m-d")) {
+
+                //if the month or year is changed then 
+                if ($createdAt->format("Y-m") !== $currentDate->format("Y-m")) {
+
+                    //if the year is different then create new year folder
+                    if ($createdAt->format("Y") !== $currentDate->format("Y")) {
+
+                        $reportYearFolderPath = "/var/reports/{$createdAt->format("Y")}/";
+
+                        if (!is_dir($reportYearFolderPath)) {
+                            mkdir($reportYearFolderPath);
+                            echo "New folder for year {$createdAt->format("Y")} \n";
+                        }
+                    }
+
+                    //change the current day to be new month of current year
+                    $currentDate = $createdAt;
+                    $reportMonthSubFolderPath =   $reportYearFolderPath . "{$currentDate->format("Y-m")}/";
+
+                    if (!is_dir($reportMonthSubFolderPath)) {
+                        mkdir($reportMonthSubFolderPath);
+                        echo "New sub folder for month {$currentDate->format("m")} \n";
+                    }
+                }
+
+                $reportPath = $reportYearFolderPath . $reportMonthSubFolderPath . $createdAt->format("Y-m-d") . ".csv";
+                $dailyNewUsers = $missingReportUsersInfoArray;
+                is_null($reportYearFolderPath && $reportMonthSubFolderPath) ? $missingReportPathArray = null : array_push($missingReportPathArray, [$reportPath, $dailyNewUsers]);
+                $missingReportUsersInfoArray = array();
+            }
+        }
+
+        var_dump($missingReportPathArray);
+
     } catch (Exception $e) {
         echo "Erreur: " . $e->getMessage() . "\n";
     }
@@ -122,6 +167,43 @@ function GlobalReport()
 
 
     $userController = null;
+}
+
+
+function CreateReport(string $reportPath, array $infoArray)
+{
+    if (file_exists($reportPath)) {
+        echo "File For report already exist";
+        return;
+    }
+
+    $pathNameArray = explode("/", $reportPath);
+    $fileName = $pathNameArray[count($pathNameArray) - 1];
+
+    $newReport = fopen($reportPath, "w");
+    if (is_null($infoArray) || count($infoArray) === 0) {
+        fwrite($newReport, "Error Report something went wrong");
+        fclose($newReport);
+        return;
+    }
+
+    $fileColumnArray = ["first_name", "last_name", "email", "created_at"];
+
+    for ($i = 0; $i <= count($infoArray); $i++) {
+        for ($j = 0; $j < count($fileColumnArray); $j++) {
+
+            if ($i === 0) {
+                fwrite($newReport, $fileColumnArray[$j] . ", ");
+            }
+
+            if ($i - 1 < count($infoArray)) {
+                fwrite($newReport, $infoArray[$i - 1][$fileColumnArray[$j]]);
+            }
+        }
+        fwrite($newReport, "\n");
+    }
+
+    fclose($newReport);
 }
 
 if (count($argv) > 1) {
