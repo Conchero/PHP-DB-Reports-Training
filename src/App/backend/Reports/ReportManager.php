@@ -145,14 +145,19 @@ function GlobalReport()
                     }
                 }
 
-                $reportPath = $reportYearFolderPath . $reportMonthSubFolderPath . $createdAt->format("Y-m-d") . ".csv";
+                $reportPath = $reportMonthSubFolderPath . $createdAt->format("Y-m-d") . ".csv";
                 $dailyNewUsers = $missingReportUsersInfoArray;
                 is_null($reportYearFolderPath && $reportMonthSubFolderPath) ? $missingReportPathArray = null : array_push($missingReportPathArray, [$reportPath, $dailyNewUsers]);
                 $missingReportUsersInfoArray = array();
             }
         }
 
-        var_dump($missingReportPathArray);
+        for ($i = 0;  $i < count($missingReportPathArray); $i++){
+            
+            echo $missingReportPathArray[$i][0] . "\n";
+            CreateReport($missingReportPathArray[$i][0],$missingReportPathArray[$i][1]);
+
+        }
 
     } catch (Exception $e) {
         echo "Erreur: " . $e->getMessage() . "\n";
@@ -193,11 +198,12 @@ function CreateReport(string $reportPath, array $infoArray)
         for ($j = 0; $j < count($fileColumnArray); $j++) {
 
             if ($i === 0) {
-                fwrite($newReport, $fileColumnArray[$j] . ", ");
+                fwrite($newReport, $fileColumnArray[$j] . ( $j < count($fileColumnArray) - 1 ? ", ": '') );
             }
-
-            if ($i - 1 < count($infoArray)) {
-                fwrite($newReport, $infoArray[$i - 1][$fileColumnArray[$j]]);
+            else{
+                if ($i - 1 < count($infoArray)) {
+                    fwrite($newReport, $infoArray[$i - 1][$j] . ( $j < count($fileColumnArray) - 1 ? ", ": ''));
+                }
             }
         }
         fwrite($newReport, "\n");
