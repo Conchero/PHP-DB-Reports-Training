@@ -17,17 +17,17 @@ class MailService
 
             // SMTP config
             $mail->isSMTP();
-            $mail->Host = "sandbox.smtp.mailtrap.io";
+            $mail->Host = "live.smtp.mailtrap.io";
             $mail->SMTPAuth = true;
-            $mail->Username = "c872fc36f12158";
-            $mail->Password = "e7264d2ecabc67";
+            $mail->Username = "api";
+            $mail->Password = "19386964cf65c0739fe63a7bbf9ead81";
             $mail->SMTPSecure = 'tls';
             $mail->Port = 2525;
 
             // Sender and recipient settings
-            $mail->setFrom('info@mailtrap.io', 'Mailtrap');
-            $mail->addReplyTo('info@mailtrap.io', 'Mailtrap');
-            $mail->addAddress('recipient1@mailtrap.io', 'Tim'); // Replace with recipient's email and name
+            $mail->setFrom('hello@demomailtrap.co', 'Mailtrap');
+            $mail->addReplyTo('hello@demomailtrap.co', 'Mailtrap');
+            $mail->addAddress('florian.parra@hotmail.com', 'Flo'); // Replace with recipient's email and name
 
             // Setting the email content
             $mail->isHTML(false); // Set email format to plain text
