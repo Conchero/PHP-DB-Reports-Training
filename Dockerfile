@@ -96,13 +96,15 @@ COPY ./apache/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-defa
 
 RUN apt-get update && apt-get install -y cron nano 
 
+COPY .env ./
+
 COPY ./bash_files/boot.sh ./bash_files/
-COPY ./cronjob/testcron.txt ./cronjob/
+COPY ./cronjob/testcron.sh /var/cronjob/
 COPY ./cronjob/cron.d/cron.allow /etc/cron.d/
 
-RUN crontab -u root ./cronjob/testcron.txt
+RUN crontab -u root /var/cronjob/testcron.sh
 
-RUN mkdir /var/log/cronjobLogs/ &&  touch /var/log/cronjobLogs/logs.txt
+RUN mkdir /var/log/cronjobLogs/ &&  touch /var/log/cronjobLogs/cronLog.log
 
 # Switch to a non-privileged user (defined in the base image) that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/

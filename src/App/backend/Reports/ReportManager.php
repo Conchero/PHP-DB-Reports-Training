@@ -11,28 +11,27 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/services/Mail.php";
 
 function DailyReport()
 {
+
+    $dotenv = __DIR__ . "/../../.env";
+    if (file_exists($dotenv)) {
+        foreach (file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+            if (strpos(trim($line), '#') === 0) continue;
+            list($name, $value) = explode('=', $line, 2);
+            putenv("$name=$value");
+            $_ENV[$name] = $value;
+        }
+    }
+
+    file_put_contents("/var/log/cronjobLogs/env.txt", print_r($_ENV, true));
+
     $tmp_date = DateTimeImmutable::createFromFormat("Y-m-d", "2023-11-01");
 
     $userController = new UserController();
     $newDailyUserArray = $userController->GetDailyNewUsers(DateTimeImmutable::createFromFormat("Y-m-d", "2023-11-01"));
     $nbNewUsers = count($newDailyUserArray);
 
-    $mailBody = '';
 
-
-    $mailBody .= "________________________________ \n";
-    $mailBody .= "On the day of {$tmp_date->format("Y-m-d")} \n";
-    $mailBody .= "You had {$nbNewUsers} new user \n";
-
-    for ($i = 0; $i < count($newDailyUserArray); $i++) {
-        $mailBody .= "{$newDailyUserArray[$i]["first_name"]} {$newDailyUserArray[$i]["last_name"]} \n";
-        $mailBody .= "account created : {$newDailyUserArray[$i]["created_at"]} \n";
-        $mailBody .= "email : {$newDailyUserArray[$i]["email"]} \n";
-        $mailBody .= "------------------------------------- \n";
-    }
-
-    MailService::CreateAndSendMail("Daily Report", $mailBody);
-    echo $mailBody;
+    echo "new Users {$nbNewUsers} \n";
 
     $userController = null;
 }
@@ -47,21 +46,7 @@ function MonthlyReport()
     $userController = new UserController();
     $newDailyUserArray = $userController->GetMonthlyNewUsers($tmp_date);
     $nbNewUsers = count($newDailyUserArray);
-    $mailBody = '';
 
-    $mailBody .= "________________________________ \n";
-    $mailBody .= "On the Month of {$tmp_date->format("Y-m")} \n";
-    $mailBody .= "You had {$nbNewUsers} new user \n";
-
-    for ($i = 0; $i < count($newDailyUserArray); $i++) {
-        $mailBody .= "{$newDailyUserArray[$i]["first_name"]} {$newDailyUserArray[$i]["last_name"]} \n";
-        $mailBody .= "account created : {$newDailyUserArray[$i]["created_at"]} \n";
-        $mailBody .= "email : {$newDailyUserArray[$i]["email"]} \n";
-        $mailBody .= "------------------------------------- \n";
-    }
-
-    MailService::CreateAndSendMail("Monthly Report", $mailBody);
-    echo $mailBody;
 
     $userController = null;
 }
@@ -75,22 +60,7 @@ function YearlyReport()
     $newDailyUserArray = $userController->GetYearlyNewUsers($tmp_date);
     $nbNewUsers = count($newDailyUserArray);
 
-    $mailBody = '';
 
-    $mailBody .= "________________________________ \n";
-
-    $mailBody .= "On the Year {$tmp_date->format("Y")} \n";
-    $mailBody .= "You had {$nbNewUsers} new user \n";
-
-    for ($i = 0; $i < count($newDailyUserArray); $i++) {
-        $mailBody .= "{$newDailyUserArray[$i]["first_name"]} {$newDailyUserArray[$i]["last_name"]} \n";
-        $mailBody .= "account created : {$newDailyUserArray[$i]["created_at"]} \n";
-        $mailBody .= "email : {$newDailyUserArray[$i]["email"]} \n";
-        $mailBody .= "------------------------------------- \n";
-    }
-
-    MailService::CreateAndSendMail("Yearly Report", $mailBody);
-    echo $mailBody;
     $userController = null;
 }
 
@@ -152,13 +122,11 @@ function GlobalReport()
             }
         }
 
-        for ($i = 0;  $i < count($missingReportPathArray); $i++){
-            
+        for ($i = 0; $i < count($missingReportPathArray); $i++) {
+
             echo $missingReportPathArray[$i][0] . "\n";
-            CreateReport($missingReportPathArray[$i][0],$missingReportPathArray[$i][1]);
-
+            CreateReport($missingReportPathArray[$i][0], $missingReportPathArray[$i][1]);
         }
-
     } catch (Exception $e) {
         echo "Erreur: " . $e->getMessage() . "\n";
     }
@@ -198,11 +166,10 @@ function CreateReport(string $reportPath, array $infoArray)
         for ($j = 0; $j < count($fileColumnArray); $j++) {
 
             if ($i === 0) {
-                fwrite($newReport, $fileColumnArray[$j] . ( $j < count($fileColumnArray) - 1 ? ", ": '') );
-            }
-            else{
+                fwrite($newReport, $fileColumnArray[$j] . ($j < count($fileColumnArray) - 1 ? ", " : ''));
+            } else {
                 if ($i - 1 < count($infoArray)) {
-                    fwrite($newReport, $infoArray[$i - 1][$j] . ( $j < count($fileColumnArray) - 1 ? ", ": ''));
+                    fwrite($newReport, $infoArray[$i - 1][$j] . ($j < count($fileColumnArray) - 1 ? ", " : ''));
                 }
             }
         }
@@ -233,3 +200,6 @@ if (count($argv) > 1) {
             break;
     }
 }
+
+
+DailyReport();
