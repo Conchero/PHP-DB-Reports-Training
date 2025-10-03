@@ -11,7 +11,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/backend/services/Mail.php";
 
 function DailyReport()
 {
-
+    //// TODO put this in a more suitable script
     $dotenv = __DIR__ . "/../../.env";
     if (file_exists($dotenv)) {
         foreach (file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
@@ -21,51 +21,26 @@ function DailyReport()
             $_ENV[$name] = $value;
         }
     }
-
-    file_put_contents("/var/log/cronjobLogs/env.txt", print_r($_ENV, true));
+    //////////////////////////////
 
     $userController = new UserController();
     $newDailyUserArray = $userController->GetDailyNewUsers(DateTimeImmutable::createFromFormat("Y-m-d", "2023-11-01"));
     $nbNewUsers = count($newDailyUserArray);
 
 
-    echo "new Users {$nbNewUsers} \n";
 
     $userController = null;
 }
 
 function WeeklyReport() {}
 
-function MonthlyReport()
-{
-    $userController = new UserController();
-    $tmp_date = DateTimeImmutable::createFromFormat("Y-m", "2023-11");
+function MonthlyReport() {}
 
-    $userController = new UserController();
-    $newDailyUserArray = $userController->GetMonthlyNewUsers($tmp_date);
-    $nbNewUsers = count($newDailyUserArray);
-
-
-    $userController = null;
-}
-
-function YearlyReport()
-{
-    $userController = new UserController();
-    $tmp_date = DateTimeImmutable::createFromFormat("Y", "2023");
-
-    $userController = new UserController();
-    $newDailyUserArray = $userController->GetYearlyNewUsers($tmp_date);
-    $nbNewUsers = count($newDailyUserArray);
-
-
-    $userController = null;
-}
+function YearlyReport() {}
 
 function GlobalReport()
 {
 
-    echo "Debut de global report \n";
 
     try {
         $userController = new UserController();
@@ -78,6 +53,7 @@ function GlobalReport()
         $reportYearFolderPath = null;
         $reportMonthSubFolderPath = null;
 
+        //2D array[string, array()] containing path as string and the users info of the day 
         $missingReportPathArray = array();
         $missingReportUsersInfoArray = array();
 
@@ -85,11 +61,13 @@ function GlobalReport()
             //Get the user full date time created at
             $createdAt = DateTimeImmutable::createFromFormat("Y-m-d", $userArray[$i]["created_at"]);
 
+            //insert user's wanted info in array
             array_push($missingReportUsersInfoArray, [$userArray[$i]["first_name"], $userArray[$i]["last_name"], $userArray[$i]["email"], $userArray[$i]["created_at"]]);
+
 
             if ($createdAt->format("Y-m-d") !== $currentDate->format("Y-m-d")) {
 
-                //if the month or year is changed then 
+                //if the month is changed then create a subfolder within the targeted year
                 if ($createdAt->format("Y-m") !== $currentDate->format("Y-m")) {
 
                     //if the year is different then create new year folder
@@ -115,17 +93,18 @@ function GlobalReport()
 
                 $reportPath = $reportMonthSubFolderPath . $createdAt->format("Y-m-d") . ".csv";
                 $dailyNewUsers = $missingReportUsersInfoArray;
+
+                //if the paths were set then push in 2D Array
                 is_null($reportYearFolderPath && $reportMonthSubFolderPath) ? $missingReportPathArray = null : array_push($missingReportPathArray, [$reportPath, $dailyNewUsers]);
+
+                //empty array for the next day
                 $missingReportUsersInfoArray = array();
             }
         }
 
         for ($i = 0; $i < count($missingReportPathArray); $i++) {
-            echo $missingReportPathArray[$i][0] . "\n";
             CreateReport($missingReportPathArray[$i][0], $missingReportPathArray[$i][1]);
         }
-
-        MailService::CreateAndSendMailWithAttachement("Global Report", "Test attahcemnt", $missingReportPathArray[0][0]);
 
     } catch (Exception $e) {
         echo "Erreur: " . $e->getMessage() . "\n";
@@ -143,9 +122,7 @@ function CreateReport(string $reportPath, array $infoArray)
         return;
     }
 
-    $pathNameArray = explode("/", $reportPath);
-    $fileName = $pathNameArray[count($pathNameArray) - 1];
-
+    //if the given info are null then the report is created but with a message error
     $newReport = fopen($reportPath, "w");
     if (is_null($infoArray) || count($infoArray) === 0) {
         fwrite($newReport, "Error Report something went wrong");
@@ -154,7 +131,9 @@ function CreateReport(string $reportPath, array $infoArray)
     }
 
     $fileColumnArray = ["first_name", "last_name", "email", "created_at"];
-
+    //Creation of the csv file 
+    //first iteration for the column name
+    //then fill with infoArray to the given columns
     for ($i = 0; $i <= count($infoArray); $i++) {
         for ($j = 0; $j < count($fileColumnArray); $j++) {
 
@@ -192,6 +171,3 @@ if (count($argv) > 1) {
             break;
     }
 }
-
-
-DailyReport();

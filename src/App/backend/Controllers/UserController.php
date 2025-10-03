@@ -168,7 +168,7 @@ class UserController extends BaseController
             }
         }
 
-        //For multiple deltetion DELETE FROM users WHERE (cond = value), (cond = value)
+        //For multiple deletion DELETE FROM users WHERE (cond = value), (cond = value)
         if ($whereForSQL != '') {
             $sql = "DELETE FROM users WHERE {$whereForSQL}";
             $results = $this->dbh->prepare($sql);
