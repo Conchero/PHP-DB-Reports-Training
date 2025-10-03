@@ -8,13 +8,16 @@ class DatabaseController
     protected ?string $user;
     protected ?string $password;
     protected ?PDO $dbh;
+
+
     function __construct()
     {
-       $dbName = getenv("POSTGRES_NAME",true) ?: getenv("POSTGRES_NAME");
-       $dbHost = getenv("POSTGRES_HOST",true) ?: getenv("POSTGRES_HOST");
-       $dbPort = getenv("POSTGRES_PORT",true) ?: getenv("POSTGRES_PORT");
-       $dbUser = getenv("POSTGRES_USER",true) ?: getenv("POSTGRES_USER");
-       $dbPassword = getenv("POSTGRES_PASSWORD",true) ?: getenv("POSTGRES_PASSWORD");
+        //either from local env file or docker file
+        $dbName = getenv("POSTGRES_NAME", true) ?: getenv("POSTGRES_NAME");
+        $dbHost = getenv("POSTGRES_HOST", true) ?: getenv("POSTGRES_HOST");
+        $dbPort = getenv("POSTGRES_PORT", true) ?: getenv("POSTGRES_PORT");
+        $dbUser = getenv("POSTGRES_USER", true) ?: getenv("POSTGRES_USER");
+        $dbPassword = getenv("POSTGRES_PASSWORD", true) ?: getenv("POSTGRES_PASSWORD");
 
 
         $this->dsn = "pgsql:dbname={$dbName};host={$dbHost};port={$dbPort}";
@@ -36,5 +39,4 @@ class DatabaseController
         $this->password = null;
         $this->dbh = null;
     }
-
 }

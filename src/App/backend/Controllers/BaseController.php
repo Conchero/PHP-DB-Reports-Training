@@ -11,6 +11,7 @@ abstract class BaseController
 
     function __construct(?DatabaseController $_dbContoller = null)
     {
+        //if a database controller exist then it should be passed as an argument 
         if ($_dbContoller != null) {
             $this->dbController = $_dbContoller;
         } else {
