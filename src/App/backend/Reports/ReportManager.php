@@ -24,8 +24,6 @@ function DailyReport()
 
     file_put_contents("/var/log/cronjobLogs/env.txt", print_r($_ENV, true));
 
-    $tmp_date = DateTimeImmutable::createFromFormat("Y-m-d", "2023-11-01");
-
     $userController = new UserController();
     $newDailyUserArray = $userController->GetDailyNewUsers(DateTimeImmutable::createFromFormat("Y-m-d", "2023-11-01"));
     $nbNewUsers = count($newDailyUserArray);
@@ -123,20 +121,15 @@ function GlobalReport()
         }
 
         for ($i = 0; $i < count($missingReportPathArray); $i++) {
-
             echo $missingReportPathArray[$i][0] . "\n";
             CreateReport($missingReportPathArray[$i][0], $missingReportPathArray[$i][1]);
         }
+
+        MailService::CreateAndSendMailWithAttachement("Global Report", "Test attahcemnt", $missingReportPathArray[0][0]);
+
     } catch (Exception $e) {
         echo "Erreur: " . $e->getMessage() . "\n";
     }
-
-
-    // $baseDate_YM = DateTimeImmutable::createFromFormat("Y-m",, new DateTimeZone("Europe/Paris") );
-
-    // for ($i = 0; $i < count($usersArray); $i++){
-
-    // }
 
 
     $userController = null;
@@ -175,7 +168,6 @@ function CreateReport(string $reportPath, array $infoArray)
         }
         fwrite($newReport, "\n");
     }
-
     fclose($newReport);
 }
 
