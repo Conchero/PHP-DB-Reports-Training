@@ -1,4 +1,4 @@
 db/
 README.Docker.md
 *.env
-/vendor/
+/vendor
